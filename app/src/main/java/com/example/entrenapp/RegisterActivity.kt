@@ -50,6 +50,7 @@ class RegisterActivity : Activity() {
         val json = JSONObject()
         json.put("activity", activityName)
         json.put("duration", duration)
+        json.put("id_user", intent.getIntExtra("id_user", 0))
         json.put("type", "activity")
         webSocket.send(json.toString())
         Toast.makeText(this, "Actividad enviada", Toast.LENGTH_SHORT).show()

@@ -61,17 +61,21 @@ class LoginActivity : Activity() {
                         val jsonResponse = JSONObject(text)
                         val message = jsonResponse.getString("message")
                         val success = jsonResponse.getBoolean("success")
+                            val id_user = jsonResponse.getString("id_user")
                         if (success) {
                             Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
                             // Guardamos los datos en un JSON
                             if (!hayJson) {
+                                
                                 val file = getExternalFilesDir(null)?.resolve("login.json")
                                 val json = JSONObject()
                                 json.put("username", username)
                                 json.put("password", password)
+                                json.put("id_user", id_user)
                                 file?.writeText(json.toString())
                             }               
                             val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                            intent.putExtra("id_user", id_user)
                             startActivity(intent)
                             finish()
                         }

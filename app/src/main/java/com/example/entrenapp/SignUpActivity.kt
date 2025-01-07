@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Spinner
 import android.widget.Toast
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -13,6 +14,8 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.json.JSONObject
+import java.io.IOException
+import android.widget.ArrayAdapter
 
 class SignUpActivity : Activity() {
 
@@ -24,6 +27,33 @@ class SignUpActivity : Activity() {
         val passwordField = findViewById<EditText>(R.id.etPassword)
         val registerButton = findViewById<Button>(R.id.btnRegister)
         val loginLink = findViewById<TextView>(R.id.tvLoginLink)
+        val spinnerGroups = findViewById<Spinner>(R.id.spinnerGroups)
+
+        // Fetch groups from the server and populate the spinner
+        val client = OkHttpClient()
+        val request = Request.Builder().url("http://10.0.2.2:8000/grupos").build()
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) {
+            runOnUiThread {
+                Toast.makeText(this@SignUpActivity, "Error al obtener los grupos: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+            }
+
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+            response.body?.string()?.let { responseBody ->
+                val groups = JSONObject(responseBody).getJSONArray("grupos")
+                val groupList = mutableListOf<String>()
+                for (i in 0 until groups.length()) {
+                    groupList.add(groups.getJSONObject(i).getString("name"))
+                }
+                runOnUiThread {
+                val adapter = ArrayAdapter(this@SignUpActivity, android.R.layout.simple_spinner_item, groupList)
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                spinnerGroups.adapter = adapter
+                }
+            }
+            }
+        })
 
         registerButton.setOnClickListener {
             val username = usernameField.text.toString()

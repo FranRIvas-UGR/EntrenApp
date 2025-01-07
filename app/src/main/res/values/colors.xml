@@ -10,4 +10,6 @@
     <color name="primary_color">#6200EE</color>
     <color name="secondary_color">#03DAC5</color>
     <color name="background_color">#F5F5F5</color>
+    <color name="holo_red_light">#FA8E8E</color>
+    <color name="holo_blue_light">#FF33B5E5</color>
 </resources>

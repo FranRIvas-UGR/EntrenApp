@@ -45,6 +45,14 @@
             android:background="@drawable/rounded_edittext"
             android:layout_marginBottom="24dp" />
 
+        <!-- Group Dropdown -->
+        <Spinner
+            android:id="@+id/spinnerGroups"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:padding="12dp" />
+
         <!-- Register Button -->
         <Button
             android:id="@+id/btnRegister"

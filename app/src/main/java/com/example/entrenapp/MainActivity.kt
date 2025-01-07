@@ -18,6 +18,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CalendarView
+import android.widget.LinearLayout
 import androidx.core.util.Pair
 import java.util.Calendar
 
@@ -30,6 +31,13 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val intent = intent
+        var id_user = ""
+        if (intent.hasExtra("id_user")) {
+           id_user = intent.getStringExtra("id_user").toString()
+            setGrupo(id_user)
+        }
 
         // Inicializar el RecyclerView
         recyclerView = findViewById(R.id.recyclerView)
@@ -59,8 +67,10 @@ class MainActivity : Activity() {
                 findViewById<Button>(R.id.addButton).visibility = View.VISIBLE
                 findViewById<Button>(R.id.clearButton).visibility = View.VISIBLE
             }
-            getActividadesServer(selectedDate)
+            getActividadesServer(selectedDate, id_user)
         }
+
+        
 
         // Botón para agregar actividad
         val addButton: Button = findViewById(R.id.addButton)
@@ -68,6 +78,7 @@ class MainActivity : Activity() {
             val today = getTodayDate().let { "${it.first}-${it.second}-${Calendar.getInstance().get(Calendar.DAY_OF_MONTH)}" }
             val intent = Intent(this, RegisterActivity::class.java)
             intent.putExtra("date", today)
+            intent.putExtra("id_user", intent.getIntExtra("id_user", -1))
             startActivity(intent)
         }
 
@@ -84,15 +95,15 @@ class MainActivity : Activity() {
         var today_string = getTodayDate().let {
             "${it.first}-${String.format("%02d", it.second)}-${String.format("%02d", it.third)}"
         }
-        getActividadesServer(today_string)
+        getActividadesServer(today_string, id_user)
 
         // Conexión WebSocket para recibir actualizaciones de actividades
         connectToWebSocket()
     }
 
     // Método para obtener actividades desde el servidor
-    private fun getActividadesServer(date: String = "") {
-        val request = Request.Builder().url("http://10.0.2.2:8000/actividades").build()
+    private fun getActividadesServer(date: String = "", id_user: String = "") {
+        val request = Request.Builder().url("http://10.0.2.2:8000/actividades/usuario?id_user=$id_user").build()
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 runOnUiThread {
@@ -105,7 +116,9 @@ class MainActivity : Activity() {
                 val jsonArray = JSONObject(json).getJSONArray("activities").apply {
                     for (i in 0 until length()) {
                         val activity = getJSONObject(i).getString("activity")
+                        val duration = getJSONObject(i).getString("duration")
                         val activityDate = getJSONObject(i).getString("date")
+                        val activityUser = getJSONObject(i).getString("id_user")
                         if (!activities.containsKey(activityDate)) {
                             activities[activityDate] = mutableListOf()
                         }
@@ -113,7 +126,11 @@ class MainActivity : Activity() {
                             activities[activityDate]?.remove(activity)
                         }
                         if (activityDate == date) {
-                            activities[activityDate]?.add(activity)
+                            if (activityUser != id_user) {
+                                activities[activityDate]?.add(activity + " - " + duration + " min" + " -> " + activityUser)
+                            } else {
+                                activities[activityDate]?.add(activity + " - " + duration + " min")
+                            }
                         }
                     }
                 }
@@ -156,6 +173,27 @@ class MainActivity : Activity() {
         })
     }
 
+    private fun setGrupo(id_user: String?) {
+        println("ID_USER: $id_user")
+        val request = Request.Builder().url("http://10.0.2.2:8000/get_grupo?id_user=$id_user").build()
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                val json = response.body?.string()
+                println("JSON: $json")
+                val grupo = JSONObject(json).getJSONObject("grupo").getString("name")
+                runOnUiThread {
+                    findViewById<TextView>(R.id.userGroupTextView).text = grupo
+                }
+            }
+        })
+    }
+
     // Asegúrate de tener un cliente de OkHttp
     private val client = OkHttpClient()
     private fun getTodayDate(): Triple<Int, Int, Int> {
@@ -177,14 +215,20 @@ class ActivityAdapter(private var activities: List<String>) : RecyclerView.Adapt
         return ViewHolder(itemView)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        // Asignar el texto correspondiente al TextView
-        holder.textView.text = activities[position]
-    }
-
     fun updateActivities(newActivities: List<String>) {
         activities = newActivities
         notifyDataSetChanged()
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.textView.text = activities[position]
+        val container = holder.itemView.findViewById<LinearLayout>(R.id.linearLayoutContainer)
+
+        if (activities[position].contains(" -> ")) {
+            container.setBackgroundColor(holder.itemView.context.getColor(R.color.holo_red_light))
+        } else {
+            container.setBackgroundColor(holder.itemView.context.getColor(R.color.holo_blue_light))
+        }
     }
 
     override fun getItemCount() = activities.size
