@@ -37,6 +37,12 @@
             android:label="@string/title_activity_register"
             android:theme="@style/Theme.EntrenApp">
         </activity>
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="true"
+            android:label="@string/title_activity_signup"
+            android:theme="@style/Theme.EntrenApp">
+        </activity>
     </application>
 
 </manifest>

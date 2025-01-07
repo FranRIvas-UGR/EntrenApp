@@ -103,9 +103,8 @@ class LoginActivity : Activity() {
 
         signupLink.setOnClickListener {
             Toast.makeText(this, "Página de registro", Toast.LENGTH_SHORT).show()
-            // Here you could navigate to a signup activity
-            // val intent = Intent(this, SignupActivity::class.java)
-            // startActivity(intent)
+            val intent = Intent(this, SignUpActivity::class.java)
+            startActivity(intent)
         }
     }
 }
