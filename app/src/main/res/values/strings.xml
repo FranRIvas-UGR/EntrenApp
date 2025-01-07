@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">EntrenApp</string>
     <string name="title_activity_register">Registrar Actividad</string>
+    <string name="title_activity_login">Iniciar Sesión</string>
 </resources>

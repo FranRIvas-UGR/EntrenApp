@@ -119,11 +119,9 @@ class MainActivity : Activity() {
                 }
                 println("Lista de actividades: $activities")
                 runOnUiThread {
-                    val today = getTodayDate().let {
-                        "${it.first}-${String.format("%02d", it.second)}-${String.format("%02d", it.third)}"
-                    }
-                    Toast.makeText(this@MainActivity, "Today: $today", Toast.LENGTH_SHORT).show()
-                    adapter.updateActivities(activities[today] ?: mutableListOf())
+                    val selectedDay = date
+                    //Toast.makeText(this@MainActivity, "Today: $today", Toast.LENGTH_SHORT).show()
+                    adapter.updateActivities(activities[selectedDay] ?: mutableListOf())
                 }
             }
         })
