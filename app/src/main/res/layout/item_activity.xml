@@ -1,0 +1,26 @@
+<!-- item_activity.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@android:color/holo_blue_light"
+        android:padding="16dp"
+        android:layout_margin="8dp"
+        android:elevation="4dp">
+
+        <TextView
+            android:id="@+id/textViewActivity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nombre de la Actividad"
+            android:textSize="24sp"
+            android:textColor="@android:color/white"
+            android:padding="8dp"/>
+    </LinearLayout>
+</LinearLayout>
