@@ -18,7 +18,7 @@ class RegisterActivity : Activity() {
         setContentView(R.layout.activity_register)
 
         val client = OkHttpClient()
-        val request = Request.Builder().url("ws://10.0.2.2:8080").build()
+        val request = Request.Builder().url("ws://192.168.1.116:8080").build()
         webSocket = client.newWebSocket(request, object : okhttp3.WebSocketListener() {
             override fun onOpen(webSocket: okhttp3.WebSocket, response: okhttp3.Response) {
                 runOnUiThread {
@@ -36,12 +36,14 @@ class RegisterActivity : Activity() {
         val activityNameEditText: EditText = findViewById(R.id.etActivityName)
         val durationEditText: EditText = findViewById(R.id.etDuration)
         val registerButton: Button = findViewById(R.id.btnSave)
+        val original_intent = intent
         registerButton.setOnClickListener {
             val activityName = activityNameEditText.text.toString()
             val duration = durationEditText.text.toString().toInt()
             sendActivityToServer(activityName, duration)
             val intent = Intent(this, MainActivity::class.java)
             intent.putExtra("newActivity", activityName)
+            intent.putExtra("id_user", original_intent.getStringExtra("id_user"))
             startActivity(intent)
         }
     }
@@ -50,7 +52,7 @@ class RegisterActivity : Activity() {
         val json = JSONObject()
         json.put("activity", activityName)
         json.put("duration", duration)
-        json.put("id_user", intent.getIntExtra("id_user", 0))
+        json.put("id_user", intent.getStringExtra("id_user"))
         json.put("type", "activity")
         webSocket.send(json.toString())
         Toast.makeText(this, "Actividad enviada", Toast.LENGTH_SHORT).show()

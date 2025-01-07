@@ -46,7 +46,7 @@ class LoginActivity : Activity() {
             Toast.makeText(this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show()
             } else {
                 // Connect to WebSocket server and send login credentials
-                val wsUrl = "ws://10.0.2.2:8080"
+                val wsUrl = "ws://192.168.1.116:8080"
                 val client = OkHttpClient()
                 val request = Request.Builder().url(wsUrl).build()
                 val webSocketListener =
@@ -61,12 +61,14 @@ class LoginActivity : Activity() {
                         val jsonResponse = JSONObject(text)
                         val message = jsonResponse.getString("message")
                         val success = jsonResponse.getBoolean("success")
-                            val id_user = jsonResponse.getString("id_user")
                         if (success) {
                             Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
+                            var id_user = ""
+                            if (jsonResponse.has("id_user")) {
+                                id_user = jsonResponse.getString("id_user")
+                            }
                             // Guardamos los datos en un JSON
                             if (!hayJson) {
-                                
                                 val file = getExternalFilesDir(null)?.resolve("login.json")
                                 val json = JSONObject()
                                 json.put("username", username)

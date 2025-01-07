@@ -31,7 +31,7 @@ class SignUpActivity : Activity() {
 
         // Fetch groups from the server and populate the spinner
         val client = OkHttpClient()
-        val request = Request.Builder().url("http://10.0.2.2:8000/grupos").build()
+        val request = Request.Builder().url("http://192.168.1.116:8000/grupos").build()
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: IOException) {
             runOnUiThread {
@@ -63,14 +63,16 @@ class SignUpActivity : Activity() {
                 Toast.makeText(this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show()
             } else {
                 // Connect to WebSocket server and send registration data
-                val wsUrl = "ws://10.0.2.2:8080"
+                val wsUrl = "ws://192.168.1.116:8080"
                 val client = OkHttpClient()
                 val request = Request.Builder().url(wsUrl).build()
                 val webSocketListener =
                     object : WebSocketListener() {
                         override fun onOpen(webSocket: WebSocket, response: Response) {
+                            var group = spinnerGroups.selectedItemPosition + 1
+                            println("Group: $group")
                             val registerData =
-                                "{\"username\":\"$username\", \"password\":\"$password\", \"type\":\"register\"}"
+                                "{\"username\":\"$username\", \"password\":\"$password\", \"type\":\"register\", \"id_group\":\"$group\"}"
                             webSocket.send(registerData)
                         }
 
